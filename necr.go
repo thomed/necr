@@ -16,10 +16,19 @@ var cmd *exec.Cmd
  * Run a command and restart it when it or a child ends.
  *
  * TODO 
- * Have the command be a command line parameter?
+ * Enable/disable logging
+ *     -> Maybe put log file into a userspace folder...
  * Possibly move for loop into its own method
  */
 func main() {
+	if len(os.Args) < 2 {
+		fmt.Println("Usage: necr [command]")
+		os.Exit(1)
+	}
+
+	commandString := os.Args[1]
+	fmt.Println(commandString)
+
 	// set up channel to receive child signals
 	sigchldChannel := make(chan os.Signal, 1)
 	signal.Notify(sigchldChannel, syscall.SIGCHLD)
@@ -27,13 +36,13 @@ func main() {
 	go sigintHandler()
 
 	for {
-		cmd = exec.Command("./startserv.sh")
+		cmd = exec.Command(commandString)
 		cmd.SysProcAttr = &syscall.SysProcAttr{Setsid: true}
 		cmd.Stdout = os.Stdout
 		cmd.Stdin = os.Stdin
 
 		startTime := time.Now()
-		appendLog(fmt.Sprintf("\nStarted at %s\n", startTime.String()))
+		appendLog(fmt.Sprintf("\nStarted {%s} at %s\n", commandString, startTime.String()))
 		err := cmd.Start()
 		if err != nil {
 			appendLog("Failed to run")
