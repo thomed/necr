@@ -12,22 +12,13 @@ import (
 var cmd *exec.Cmd
 
 /*
- * Terraria Server Monitor
+ * necr
  * Run a command and restart it when it or a child ends.
  *
  * TODO 
  * Have the command be a command line parameter?
  * Log start/stop times to file?
  *     -> Make times global and do this from sigchldHandler
- * Think of a new name that applies more generally
- *     -> Test with other scripts/processes to make sure it works more generally
- *     -> rally
- *     -> perk
- *     -> mend
- *     -> resh (re shell)
- *     -> re
- *     -> necr or necro (necromancer)
- *     -> rezr (resurrector)
  * Possibly move for loop into its own method
  * See if possible to get CPU time of process
  *     -> Might not be worth because most CPU time is not in cmd

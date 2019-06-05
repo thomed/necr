@@ -1,6 +1,6 @@
-tersermon: tersermon.go
-	go build tersermon.go
+necr: necr.go
+	go build necr.go
 
 clean:
-	rm tersermon
+	rm necr
 
