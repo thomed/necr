@@ -17,11 +17,7 @@ var cmd *exec.Cmd
  *
  * TODO 
  * Have the command be a command line parameter?
- * Log start/stop times to file?
- *     -> Make times global and do this from sigchldHandler
  * Possibly move for loop into its own method
- * See if possible to get CPU time of process
- *     -> Might not be worth because most CPU time is not in cmd
  */
 func main() {
 	// set up channel to receive child signals
@@ -37,10 +33,10 @@ func main() {
 		cmd.Stdin = os.Stdin
 
 		startTime := time.Now()
-		fmt.Println("\nStarted at ", startTime)
+		appendLog(fmt.Sprintf("\nStarted at %s\n", startTime.String()))
 		err := cmd.Start()
 		if err != nil {
-			fmt.Println("Failed to run")
+			appendLog("Failed to run")
 			fmt.Println(err)
 		}
 
@@ -50,14 +46,15 @@ func main() {
 		cmd.Wait()
 
 		endTime := time.Now()
-		fmt.Println("Closed at ", endTime)
-		fmt.Println("Total run time: ", endTime.Sub(startTime).String())
+		appendLog(fmt.Sprintf("Closed at %s\n", endTime.String()))
+		appendLog(fmt.Sprintf("Total run time: %s\n", endTime.Sub(startTime).String()))
 
-		fmt.Print("Process restarting in 10 seconds")
+		appendLog("Process restarting in 10 seconds")
 		for i := 0; i < 10; i++ {
 			fmt.Print(".")
 			time.Sleep(time.Second)
 		}
+		appendLog("\n")
 	}
 }
 
@@ -82,6 +79,20 @@ func sigintHandler() {
 
 	<-sigintChannel
 	sigchldHandler()
+	appendLog("Exiting\n")
 	os.Exit(0)
+}
+
+func appendLog(s string) {
+	f, err := os.OpenFile("necr.log", os.O_APPEND | os.O_CREATE | os.O_WRONLY, 0644)
+	if err != nil {
+		fmt.Println("Error opening or creating log file.")
+		return
+	}
+
+	fmt.Print(s)
+
+	f.Write([]byte(s))
+	f.Close()
 }
 
